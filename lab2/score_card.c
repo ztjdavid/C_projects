@@ -6,7 +6,15 @@
  * Return the sum of the values pointed to by the elements of score_card.
  */
 int sum_card(int **score_card, int size) {
-    // TODO: write the body of sum_card according to its description.
+    int result = 0;
+    for(int i = 0; i < size; i++){
+        result += **(score_card + i);
+    }
+    return result;
+}
+
+void invest(double *principal, double rate){
+    *principal = *principal * rate;
 }
 
 
