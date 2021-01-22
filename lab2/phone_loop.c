@@ -12,13 +12,13 @@ int main() {
     scanf("%d", &choice);
 
     if(choice == -1){
-        printf("%s", phone);
+        printf("%s\n", phone);
         return 0;
     }else if(choice > -1 && choice < 10){
-        printf("%c", phone[choice]);
+        printf("%c\n", phone[choice]);
         return 0;
     }else{
-        printf("ERROR");
+        printf("ERROR\n");
         return 1;
     }
 
