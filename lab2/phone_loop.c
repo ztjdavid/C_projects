@@ -5,21 +5,24 @@ int main() {
     char phone[11];
     int choice;
 
-    for(int i = 0; i<10; i++){
-        scanf("%s", &phone[i]);
+    scanf("%s", phone);
+    int flag = 0;
+    while(scanf("%d", &choice) != EOF){
+        if (choice == -1) {
+            printf("%s\n", phone);
+        } else if (choice > -1 && choice < 10) {
+            printf("%c\n", phone[choice]);
+        } else {
+            printf("ERROR\n");
+            flag = 1;
+        }
     }
 
-    scanf("%d", &choice);
-
-    if(choice == -1){
-        printf("%s\n", phone);
-        return 0;
-    }else if(choice > -1 && choice < 10){
-        printf("%c\n", phone[choice]);
-        return 0;
-    }else{
-        printf("ERROR\n");
+    if (flag == 1){
         return 1;
+    }
+    else{
+        return 0;
     }
 
 }
