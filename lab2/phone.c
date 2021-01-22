@@ -6,10 +6,8 @@ int main()
     char phone[11];
     int choice;
 
-    printf("Please enter the number:\n");
     scanf("%s", phone);
 
-    printf("Please choose the digit:\n");
     scanf("%d", &choice);
 
     if(choice == -1){

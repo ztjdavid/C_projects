@@ -5,12 +5,10 @@ int main() {
     char phone[11];
     int choice;
 
-    printf("Please enter the number:\n");
     for(int i = 0; i<10; i++){
         scanf("%s", &phone[i]);
     }
 
-    printf("Please choose the digit:\n");
     scanf("%d", &choice);
 
     if(choice == -1){
