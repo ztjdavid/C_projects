@@ -16,6 +16,21 @@
 
 /* Write your solution here */
 
+int fibNum(int num) {
+    if (num <= 1) {
+        return num;
+    }
+    return fibNum(num - 1) + fibNum(num - 2);
+}
+
+void fib(int **fib_sequence, int count) {
+    *fib_sequence = malloc(sizeof(int) * count);
+    int *arr = *fib_sequence;
+    for(int i=0; i < count; i++){
+        arr[i] = fibNum(i);
+    }
+}
+
 
 int main(int argc, char **argv) {
     /* do not change this main function */

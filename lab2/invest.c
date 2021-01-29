@@ -13,7 +13,7 @@ void invest(double *principal, double rate){
 /*
  * NOTE: don't change the main function!
  * Sample usage:
- * $ gcc -Wall -std=gnu99 -g -o invest invest.c
+ * $ gcc -Wall invest invest.c
  * $ ./invest 10000 1.05
  * 10500.00
  */
