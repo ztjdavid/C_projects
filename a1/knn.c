@@ -53,8 +53,12 @@ void load_image(char *filename, unsigned char *img) {
         perror("fopen");
         exit(1);
     }
-	//TODO
-
+    int height;
+    int width;
+	fscanf(f2, "P2 %d %d 255 ", &width, &height);
+	for(int i = 0;i<height*width;i++){
+	    fscanf(f2, "%hhu ", &img[i]);
+	}
     fclose(f2);
 }
 
@@ -80,11 +84,15 @@ int load_dataset(char *filename,
         perror("fopen");
         exit(1);
     }
-
-    //TODO
-
+    char name[MAX_NAME];
+    int i = 0;
+    while(fgets(name, MAX_NAME,f1) != NULL){
+        load_image(name, dataset[i]);
+        labels[i] = get_label(name);
+        i++;
+    }
     fclose(f1);
-    return -1;
+    return i;
 }
 
 /** 
@@ -92,10 +100,11 @@ int load_dataset(char *filename,
  * a and b.  (See handout for the euclidean distance function)
  */
 double distance(unsigned char *a, unsigned char *b) {
-
-    // TODO
-
-    return 0.0;
+    double d = 0;
+    for(int i = 0; i<WIDTH*HEIGHT; i++){
+        d += (a[i]-b[i])*(a[i]-b[i]);
+    }
+    return sqrt(d);
 }
 
 /**
@@ -124,8 +133,70 @@ int knn_predict(unsigned char *input, int K,
                 unsigned char dataset[MAX_SIZE][NUM_PIXELS],
                 unsigned char *labels,
                 int training_size) {
-
-    // TODO
-
-    return -1;
+    struct Tuple {
+        int label;
+        double dis;
+    };
+    struct Tuple k_set[K];
+    double smallest = distance(input, dataset[0]);
+    k_set[0].label = labels[0];
+    k_set[0].dis = distance(input, dataset[0]);
+    for (int i = 1; i < K; i++) {
+        k_set[i].label = labels[i];
+        k_set[i].dis = distance(input, dataset[i]);
+        if (distance(input, dataset[i]) < smallest) {
+            smallest = distance(input, dataset[i]);
+        }
+    }
+    for (int j = K; j < training_size; j++) {
+        double new_dis = distance(input, dataset[j]);
+        if (new_dis < smallest) {
+            smallest = new_dis;
+            int largest_index = 0;
+            for (int k = 0; k < K; k++) {
+                if (k_set[k].dis > k_set[largest_index].dis) {
+                    largest_index = k;
+                }
+            }
+            k_set[largest_index].dis = new_dis;
+            k_set[largest_index].label = labels[j];
+        }
+    }
+    int result[10];
+    for (int i = 0; i < K; i++) {
+        if (k_set[i].label == 0) {
+            result[0] += 1;
+        } else if (k_set[i].label == 1) {
+            result[1] += 1;
+        } else if (k_set[i].label == 2) {
+            result[2] += 1;
+        } else if (k_set[i].label == 3) {
+            result[3] += 1;
+        } else if (k_set[i].label == 4) {
+            result[4] += 1;
+        } else if (k_set[i].label == 5) {
+            result[5] += 1;
+        } else if (k_set[i].label == 6) {
+            result[6] += 1;
+        } else if (k_set[i].label == 7) {
+            result[7] += 1;
+        } else if (k_set[i].label == 8) {
+            result[8] += 1;
+        } else if (k_set[i].label == 9) {
+            result[9] += 1;
+        }
+    }
+    int small = result[0];
+    int index = 0;
+    for(int i = 1; i <10; i++){
+        if(result[i] < small){
+            small = result[i];
+            index = i;
+        }if(result[i] == small){
+            if(index > i){
+                index = i;
+            }
+        }
+    }
+    return index;
 }
