@@ -17,7 +17,7 @@ int truncate(char *target, int amt){
         return 0;
     }else{
         int i = strlen(target);
-        target[3] = '\0';
+        target[amt] = '\0';
         return i - strlen(target);
     }
 }
