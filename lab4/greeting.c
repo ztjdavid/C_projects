@@ -36,9 +36,10 @@ int main(int argc, char **argv) {
     }
     char greeting[20];
     char *name = argv[2];
-
-    // Your code goes here
-
+    strncpy(greeting, argv[1], sizeof(greeting));
+    char *space = " ";
+    strncat(greeting, space, sizeof(greeting) -strlen(greeting)-1);
+    strncat(greeting, name, sizeof(greeting) -strlen(greeting)-1);
 
     printf("%s\n", greeting);
     return 0;

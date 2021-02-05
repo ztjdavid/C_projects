@@ -26,7 +26,15 @@
     "Who?What?Where?"       "Who?What?Where"        1
 */
 
-// Write the function strip_q_marks here
+int strip_q_marks(char *sentence){
+    static int count = -1;
+    count ++;
+    if(sentence[strlen(sentence)-1] == '?'){
+        sentence[strlen(sentence)-1] = '\0';
+        strip_q_marks(sentence);
+    }
+    return count;
+}
 
 
 int main(int argc, char **argv) {
