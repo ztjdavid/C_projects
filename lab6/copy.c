@@ -13,12 +13,17 @@
  */
 
 char *copy(char *dest, const char *src, int capacity) {
-    for(int i = 0;i<capacity-1;i++){
-        dest[i] = src[i];
+    if (dest == NULL)
+        return NULL;
+    char* result = dest;
+    while (*src && capacity--)
+    {
+        *dest = *src;
+        dest++;
+        src++;
     }
-    dest[capacity-1] = '\0';
-    return dest;
-
+    *dest = '\0';
+    return result;
 }
 
 
