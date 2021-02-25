@@ -13,15 +13,9 @@
  */
 
 char *copy(char *dest, const char *src, int capacity) {
-    if (dest == NULL)
-        return NULL;
     char* result = dest;
-    while (*src && capacity--)
-    {
-        *dest = *src;
-        dest++;
-        src++;
-    }
+    int i = 0;
+    while (i++ != capacity && (*dest++ = *src++));
     *dest = '\0';
     return result;
 }
