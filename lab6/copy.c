@@ -13,9 +13,12 @@
  */
 
 char *copy(char *dest, const char *src, int capacity) {
-
-
+    for(int i = 0;i<capacity-1;i++){
+        dest[i] = src[i];
+    }
+    dest[capacity-1] = '\0';
     return dest;
+
 }
 
 
@@ -36,6 +39,7 @@ int main(int argc, char **argv) {
     // Set all the bytes of dest to a dummy value to facilitate testing
     // The two dummy arrays should be allocated before and after dest
     // We fill them with values to help with debugging and testing
+
     memset(dummy1, 'A', size);
     dummy1[size - 1] = '\0';
     memset(dummy2, 'Z', size);
