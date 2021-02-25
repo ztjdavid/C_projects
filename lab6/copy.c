@@ -16,7 +16,7 @@ char *copy(char *dest, const char *src, int capacity) {
     char* result = dest;
     int i = 0;
     while (i++ != capacity && (*dest++ = *src++));
-    *dest = '\0';
+    dest[capacity-1] = '\0';
     return result;
 }
 
@@ -48,5 +48,6 @@ int main(int argc, char **argv) {
 
     printf("%s\n", dest);
     printf("%s %s\n", dummy1, dummy2);
-    return 0;
+
+    return(0);
 }
