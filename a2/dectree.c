@@ -29,8 +29,33 @@
  * Use the NUM_PIXELS and WIDTH constants defined in dectree.h
  */
 Dataset *load_dataset(const char *filename) {
-    // TODO: Allocate data, read image data / labels, return
-    return NULL;
+    FILE *file_loaded;
+    file_loaded = fopen(filename, "rb");
+    if (file_loaded == NULL) {
+        fprintf(stderr, "Error opening file\n");
+        exit(1);
+    }
+    Dataset *dataset = malloc(sizeof(Dataset));
+    int num_i;
+    fread(&num_i, sizeof(int), 1, file_loaded);
+    dataset->num_items = num_i;
+    unsigned char *label_arr = malloc(sizeof(unsigned char)*num_i);
+    Image *image_arr = malloc(sizeof(Image)*num_i);
+    for(int i = 0; i<num_i; i++){
+        unsigned char temp;
+        fread(&temp, sizeof(unsigned char), 1, file_loaded);
+        label_arr[i] = temp;
+        Image *image = malloc(sizeof(image));
+        image->sx = WIDTH;
+        image->sy = WIDTH;
+        unsigned char *data_arr = malloc(sizeof(unsigned char)*NUM_PIXELS);
+        fread(data_arr, sizeof(unsigned char), NUM_PIXELS, file_loaded);
+        image->data = data_arr;
+        image_arr[i] = *image;
+    }
+    dataset->labels = label_arr;
+    dataset->images = image_arr;
+    return dataset;
 }
 
 /**
@@ -87,10 +112,31 @@ double gini_impurity(Dataset *data, int M, int *indices, int pixel) {
  * If multiple labels have the same maximal frequency, return the smallest one.
  */
 void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq) {
-    // TODO: Set the correct values and return
-    *label = 0;
-    *freq = 0;
-    return;
+    int arr[M];
+    for(int i = 0; i<M; i++){
+        arr[i] = data->labels[indices[i]];
+    }
+    int count = 0;
+    int result_label = -1;
+    for (int i = 0; i<M;i++){
+        int temp_freq = 1;
+        for (int j = i+1;j<M;j++){
+            if (arr[j] == arr[i]) {
+                temp_freq = temp_freq + 1;
+            }
+        if (count < temp_freq){
+            count = temp_freq;
+            result_label = arr[i];
+        }
+        else if (count == temp_freq){
+            if(arr[count]>arr[temp_freq]){
+                result_label = arr[temp_freq];
+            }
+            }
+        }
+    }
+    *label = result_label;
+    *freq = count;
 }
 
 /**
@@ -105,8 +151,22 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
  * If multiple pixels have the same minimal Gini impurity, return the smallest.
  */
 int find_best_split(Dataset *data, int M, int *indices) {
-    // TODO: Return the correct pixel
-    return 0;
+    int pixel = -1;
+    double gini = INFINITY;
+    for(int i = 0; i<M;i++){
+        Image image = data->images[indices[i]];
+        for(int j = 0;j<NUM_PIXELS;j++){
+            if(gini > gini_impurity(data,M, indices, image.data[j])){
+                gini = gini_impurity(data,M, indices, image.data[j]);
+                pixel = j;
+            }else if(gini == gini_impurity(data,M, indices, image.data[j])){
+                if(pixel > image.data[j]){
+                    pixel = j;
+                }
+            }
+        }
+    }
+    return pixel;
 }
 
 /**
@@ -130,9 +190,46 @@ int find_best_split(Dataset *data, int M, int *indices) {
  *         (using build_subtree recursively). 
  */
 DTNode *build_subtree(Dataset *data, int M, int *indices) {
-    // TODO: Construct and return the tree
-
-    return NULL;
+    DTNode *node = malloc(sizeof(DTNode));
+    int frequent = -1;
+    int label = -1;
+    get_most_frequent(data, M, indices, &label, &frequent);
+    int pixel = find_best_split(data, M, indices);
+    node->pixel = pixel;
+    if(frequent / M > THRESHOLD_RATIO){
+        node->classification = label;
+        node->left = NULL;
+        node->right = NULL;
+        return node;
+    }
+    int less_count = 0;
+    int more_count = 0;
+    node->classification = -1;
+    for(int i = 0;i < M;i++){
+        if(data->images[indices[i]].data[pixel] <128){
+            less_count ++;
+        }else{
+            more_count ++;
+        }
+    }
+    int *less_arr = malloc(sizeof(int)*less_count);
+    int *more_arr = malloc(sizeof(int)* more_count);
+    int less_index = 0;
+    int more_index = 0;
+    for(int i = 0;i < M;i++){
+        if(data->images[indices[i]].data[pixel] <128){
+            less_arr[less_index] = i;
+            less_index++;
+        }else{
+            more_arr[more_index] = i;
+            more_index++;
+        }
+    }
+    node->left = build_subtree(data, less_count, less_arr);
+    node->right = build_subtree(data, more_count, more_arr);
+    free(less_arr);
+    free(more_arr);
+    return node;
 }
 
 /**
@@ -143,8 +240,13 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
 DTNode *build_dec_tree(Dataset *data) {
     // TODO: Set up `indices` array, call `build_subtree` and return the tree.
     // HINT: Make sure you free any data that is not needed anymore
-
-    return NULL;
+    int *arr = malloc(sizeof(int)*data->num_items);
+    for(int i = 0; i < data->num_items;i++){
+        arr[i] = i;
+    }
+    DTNode *node = build_subtree(data, data->num_items, arr);
+    free(arr);
+    return node;
 }
 
 /**
@@ -152,8 +254,15 @@ DTNode *build_dec_tree(Dataset *data) {
  */
 int dec_tree_classify(DTNode *root, Image *img) {
     // TODO: Return the correct label
-
-    return -1;
+    if(root->classification != -1){
+        return root->classification;
+    }else{
+        if(img->data[root->pixel] < 128){
+            return dec_tree_classify(root->left, img);
+        }else{
+            return dec_tree_classify(root->right, img);
+        }
+    }
 }
 
 /**
@@ -161,8 +270,12 @@ int dec_tree_classify(DTNode *root, Image *img) {
  */
 void free_dec_tree(DTNode *node) {
     // TODO: Free the decision tree
-
-    return;
+    if(node->classification != -1){
+        free(node);
+    }else{
+        free_dec_tree(node->left);
+        free_dec_tree(node->right);
+    }
 }
 
 /**
@@ -170,6 +283,11 @@ void free_dec_tree(DTNode *node) {
  */
 void free_dataset(Dataset *data) {
     // TODO: Free dataset (Same as A1)
-
-    return;
+    for(int i = 0; i < data->num_items; i++){
+        free(data->images[i].data);
+        free(&data->images[i]);
+    }
+    free(data->images);
+    free(data->labels);
+    free(data);
 }
