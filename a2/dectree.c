@@ -266,6 +266,7 @@ void free_dec_tree(DTNode *node) {
     }else{
         free_dec_tree(node->left);
         free_dec_tree(node->right);
+        free(node);
     }
 }
 
