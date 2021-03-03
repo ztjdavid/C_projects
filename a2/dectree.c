@@ -154,7 +154,7 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
  */
 int find_best_split(Dataset *data, int M, int *indices) {
     int pixel = -1;
-    double gini = gini_impurity(data,M, indices, data->images[indices[0].data[0]);
+    double gini = gini_impurity(data,M, indices, data->images[indices[0]].data[0]);
     for(int i = 0; i<M;i++){
         Image image = data->images[indices[i]];
         for(int j = 0;j<NUM_PIXELS;j++){
