@@ -49,7 +49,9 @@ Dataset *load_dataset(const char *filename) {
         image->sx = WIDTH;
         image->sy = WIDTH;
         unsigned char *data_arr = malloc(sizeof(unsigned char)*NUM_PIXELS);
-        fread(data_arr, sizeof(unsigned char), NUM_PIXELS, file_loaded);
+        for(int j=0;j<NUM_PIXELS; j++){
+            fread(&data_arr[j], sizeof(unsigned char), 1, file_loaded);
+        }
         image->data = data_arr;
         image_arr[i] = *image;
     }
@@ -194,14 +196,14 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     int frequent = -1;
     int label = -1;
     get_most_frequent(data, M, indices, &label, &frequent);
-    int pixel = find_best_split(data, M, indices);
-    node->pixel = pixel;
     if(frequent / M > THRESHOLD_RATIO){
         node->classification = label;
         node->left = NULL;
         node->right = NULL;
         return node;
     }
+    int pixel = find_best_split(data, M, indices);
+    node->pixel = pixel;
     int less_count = 0;
     int more_count = 0;
     node->classification = -1;

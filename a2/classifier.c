@@ -42,22 +42,21 @@
  * 
  */
 int main(int argc, char *argv[]) {
-  int total_correct = 0;
-  const char *train_set = argv[1];
-  const char *test_set = argv[2];
-  Dataset *train = load_dataset(train_set);
-  Dataset *test = load_dataset(test_set);
-  DTNode *node = build_dec_tree(train);
-  for(int i = 0; i< test->num_items; i++){
-      if(dec_tree_classify(node, &test->images[i]) == test->labels[i]){
-          total_correct ++;
-      }
-  }
-  // Print out answer
-  printf("%d\n", total_correct);
-  free_dec_tree(node);
-  free_dataset(train);
-  free_dataset(test);
-  return 0;
-
+    int total_correct = 0;
+    const char *train_set = argv[1];
+    const char *test_set = argv[2];
+    Dataset *train = load_dataset(train_set);
+    Dataset *test = load_dataset(test_set);
+    DTNode *node = build_dec_tree(train);
+    for (int i = 0; i < test->num_items; i++) {
+        if (dec_tree_classify(node, &test->images[i]) == test->labels[i]) {
+            total_correct++;
+        }
+    }
+    // Print out answer
+    printf("%d\n", total_correct);
+    free_dec_tree(node);
+    free_dataset(train);
+    free_dataset(test);
+    return 0;
 }
