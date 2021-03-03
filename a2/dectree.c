@@ -154,20 +154,16 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
  */
 int find_best_split(Dataset *data, int M, int *indices) {
     int pixel = -1;
-    double gini = 999999999999;
-    for(int i = 0; i<M;i++){
-        Image image = data->images[indices[i]];
-        for(int j = 0;j<NUM_PIXELS;j++){
-            if(gini > gini_impurity(data,M, indices, image.data[j])){
-                gini = gini_impurity(data,M, indices, image.data[j]);
-                pixel = j;
-            }else if(gini == gini_impurity(data,M, indices, image.data[j])){
-                if(pixel > image.data[j]){
-                    pixel = j;
-                }
-            }
+    double gini = INFINITY;
+    for(int i = 0; i < NUM_PIXELS; i++){
+        if(gini > gini_impurity(data, M, indices, i)){
+            gini = gini_impurity(data, M, indices, i);
+            pixel = i;
+        }else if(gini == gini_impurity(data, M, indices, i)){
+            pixel = i;
         }
     }
+
     return pixel;
 }
 
