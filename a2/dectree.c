@@ -165,7 +165,6 @@ int find_best_split(Dataset *data, int M, int *indices) {
             }
         }
     }
-
     return pixel;
 }
 
@@ -194,42 +193,33 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     int frequent = -1;
     int label = -1;
     get_most_frequent(data, M, indices, &label, &frequent);
-    if((frequent / M >= THRESHOLD_RATIO)){
+    if((frequent / M >= THRESHOLD_RATIO)) {
+        int pixel = find_best_split(data, M, indices);
+        node->pixel = pixel;
+        int left_M = 0;
+        int right_M = 0;
+        node->classification = -1;
+        int *left_arr = malloc(sizeof(int) * M);
+        int *right_arr = malloc(sizeof(int) * M);
+        for (int i = 0; i < M; i++) {
+            if ((double)data->images[indices[i]].data[pixel] < 128) {
+                left_arr[left_M] = indices[i];
+                left_M++;
+            } else {
+                right_arr[right_M] = indices[i];
+                right_M++;
+            }
+        }
+        node->left = build_subtree(data, left_M, left_arr);
+        node->right = build_subtree(data, right_M, right_arr);
+        free(left_arr);
+        free(right_arr);
+    }else{
         node->classification = label;
         node->left = NULL;
         node->right = NULL;
         node->pixel = -1;
-        return node;
     }
-    int pixel = find_best_split(data, M, indices);
-    node->pixel = pixel;
-    int less_count = 0;
-    int more_count = 0;
-    node->classification = -1;
-    for(int i = 0;i < M;i++){
-        if(data->images[indices[i]].data[pixel] <128){
-            less_count ++;
-        }else{
-            more_count ++;
-        }
-    }
-    int *less_arr = malloc(sizeof(int)*less_count);
-    int *more_arr = malloc(sizeof(int)* more_count);
-    int less_index = 0;
-    int more_index = 0;
-    for(int i = 0;i < M;i++){
-        if(data->images[indices[i]].data[pixel] <128){
-            less_arr[less_index] = i;
-            less_index++;
-        }else{
-            more_arr[more_index] = i;
-            more_index++;
-        }
-    }
-    node->left = build_subtree(data, less_count, less_arr);
-    node->right = build_subtree(data, more_count, more_arr);
-    free(less_arr);
-    free(more_arr);
     return node;
 }
 
