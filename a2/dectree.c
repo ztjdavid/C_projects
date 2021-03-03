@@ -192,10 +192,11 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     int frequent = -1;
     int label = -1;
     get_most_frequent(data, M, indices, &label, &frequent);
-    if(frequent / M > THRESHOLD_RATIO){
+    if((frequent / M > THRESHOLD_RATIO) ||(M==1) ){
         node->classification = label;
         node->left = NULL;
         node->right = NULL;
+        node->pixel = -1;
         return node;
     }
     int pixel = find_best_split(data, M, indices);
