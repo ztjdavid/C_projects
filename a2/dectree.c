@@ -274,9 +274,10 @@ void free_dec_tree(DTNode *node) {
  * Free all the allocated memory for the dataset
  */
 void free_dataset(Dataset *data) {
-    // TODO: Free dataset (Same as A1)
     for(int i = 0; i < data->num_items; i++){
         free(data->images[i].data);
+    }
+    for(int i = 0; i < data->num_items; i++){
         free(&data->images[i]);
     }
     free(data->images);
