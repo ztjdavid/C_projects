@@ -219,10 +219,10 @@ DTNode *build_subtree(Dataset *data, int M, int *indices) {
     int more_index = 0;
     for(int i = 0;i < M;i++){
         if(data->images[indices[i]].data[pixel] <128){
-            less_arr[less_index] = indices[i];
+            less_arr[less_index] = i;
             less_index++;
         }else{
-            more_arr[more_index] = indices[i];
+            more_arr[more_index] = i;
             more_index++;
         }
     }
