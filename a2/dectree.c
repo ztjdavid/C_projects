@@ -131,8 +131,8 @@ void get_most_frequent(Dataset *data, int M, int *indices, int *label, int *freq
             result_label = arr[i];
         }
         else if (count == temp_freq){
-            if(arr[count]>arr[temp_freq]){
-                result_label = arr[temp_freq];
+            if(result_label>arr[i]){
+                result_label = arr[i];
             }
             }
         }
