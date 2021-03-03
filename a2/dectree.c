@@ -160,7 +160,9 @@ int find_best_split(Dataset *data, int M, int *indices) {
             gini = gini_impurity(data, M, indices, i);
             pixel = i;
         }else if(gini == gini_impurity(data, M, indices, i)){
-            pixel = i;
+            if(pixel>i) {
+                pixel = i;
+            }
         }
     }
 
