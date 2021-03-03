@@ -40,7 +40,7 @@ Dataset *load_dataset(const char *filename) {
     fread(&num_i, sizeof(int), 1, file_loaded);
     dataset->num_items = num_i;
     unsigned char *label_arr = malloc(sizeof(unsigned char)*num_i);
-    Image *image_arr = malloc(sizeof(Image)*num_i);
+    Image *image_arr = malloc(sizeof(Image*)*num_i);
     for(int i = 0; i<num_i; i++){
         unsigned char temp;
         fread(&temp, sizeof(unsigned char), 1, file_loaded);
