@@ -6,7 +6,7 @@
 #include <sys/wait.h>
 
 #define MAXLINE 256
-#define MAX_PASSWORD 10
+#define MAX_PASSWORD 11
 
 #define SUCCESS "Password verified\n"
 #define INVALID "Invalid password\n"
