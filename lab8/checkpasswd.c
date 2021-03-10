@@ -74,7 +74,7 @@ int main(void) {
           }
       }
 
-      if ((dup2(std_fd, fileno(stdout))) == -1) {
+      if (dup2(std_fd, fileno(stdout)) == -1) {
           perror("dup2");
           exit(1);
       }
