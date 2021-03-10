@@ -48,9 +48,7 @@ int main(void) {
   r = fork();
 
   if(r>0){
-      if ((close(fd[0])) == -1) {
-          perror("close");
-      }
+
       if ((dup2(fd[1], fileno(stdout))) == -1) {
           perror("dup2");
           exit(1);
@@ -60,6 +58,9 @@ int main(void) {
       }
       if(write(fd[1],password,MAXLINE)== -1){
           perror("write to pipe");
+      }
+      if ((close(fd[0])) == -1) {
+          perror("close");
       }
       if ((close(fd[1])) == -1) {
           perror("close");
