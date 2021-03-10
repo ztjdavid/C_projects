@@ -35,7 +35,10 @@ int main(void) {
       printf(NO_USER);
       exit(1);
   }
-
+  if(strlen(password)>MAX_PASSWORD){
+      printf(INVALID);
+      exit(1);
+  }
 
   int fd[2], r;
   int result = -1;
