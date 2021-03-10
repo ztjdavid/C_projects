@@ -98,7 +98,7 @@ int main(void) {
           perror("close");
       }
 
-      execl("./validate",NULL);
+      int execl("./validate",NULL);
 
   }else {
       perror("fork");
