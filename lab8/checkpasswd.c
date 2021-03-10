@@ -53,7 +53,7 @@ int main(void) {
           perror("close");
       }
 
-      if ((dup2(fd[0], STDIN_FILENO)) == -1) {
+      if ((dup2(fd[1], STDIN_FILENO)) == -1) {
           perror("dup2");
           exit(1);
       }
@@ -89,8 +89,6 @@ int main(void) {
       } else if (result == 3) {
           printf(NO_USER);
       }
-
-
 
 
 }else if(r==0){
