@@ -48,21 +48,26 @@ int main(void) {
   r = fork();
 
   if(r>0){
-      int std_fd = dup(fileno(stdout));
 
-      if ((dup2(fd[1], fileno(stdout))) == -1) {
-          perror("dup2");
-          exit(1);
-      }
-      if(write(fd[1],user_id,MAXLINE)== -1){
-          perror("write to pipe");
-      }
-      if(write(fd[1],password,MAXLINE)== -1){
-          perror("write to pipe");
-      }
       if ((close(fd[0])) == -1) {
           perror("close");
       }
+
+      if ((dup2(fd[0], STDIN_FILENO)) == -1) {
+          perror("dup2");
+          exit(1);
+      }
+      if(write(fd[1],user_id,MAX_PASSWORD)== -1){
+          perror("write to pipe");
+      }
+      if(write(fd[1],password,MAX_PASSWORD)== -1){
+          perror("write to pipe");
+      }
+
+      if ((close(fd[1])) == -1) {
+          perror("close");
+      }
+
 
 
       int status;
@@ -74,10 +79,6 @@ int main(void) {
           }
       }
 
-      if (dup2(std_fd, fileno(stdout)) == -1) {
-          perror("dup2");
-          exit(1);
-      }
 
       if (result == 0) {
           printf(SUCCESS);
@@ -88,12 +89,8 @@ int main(void) {
       } else if (result == 3) {
           printf(NO_USER);
       }
-      if ((close(fd[1])) == -1) {
-          perror("close");
-      }
-      if (close(std_fd) == -1) {
-          perror("close");
-      }
+
+
 
 
 }else if(r==0){
@@ -101,7 +98,7 @@ int main(void) {
       if ((close(fd[1])) == -1) {
           perror("close");
       }
-      if ((dup2(fd[0], fileno(stdin))) == -1) {
+      if ((dup2(fd[0], STDIN_FILENO)) == -1) {
           perror("dup2");
           exit(1);
       }
