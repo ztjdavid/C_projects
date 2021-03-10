@@ -48,6 +48,7 @@ int main(void) {
   r = fork();
 
   if(r>0){
+      int std_fd = dup(fileno(stdout));
 
       if ((dup2(fd[1], fileno(stdout))) == -1) {
           perror("dup2");
@@ -62,9 +63,7 @@ int main(void) {
       if ((close(fd[0])) == -1) {
           perror("close");
       }
-      if ((close(fd[1])) == -1) {
-          perror("close");
-      }
+
 
       int status;
       if (wait(&status) != -1) {
@@ -75,15 +74,27 @@ int main(void) {
           }
       }
 
+      if ((dup2(std_fd, fileno(stdout))) == -1) {
+          perror("dup2");
+          exit(1);
+      }
+
       if (result == 0) {
-              printf(SUCCESS);
-          } else if (result == 1) {
-              fprintf(stderr, "There is an error while validate.c is executing!");
-          } else if (result == 2) {
-              printf(INVALID);
-          } else if (result == 3) {
-              printf(NO_USER);
-          }
+          printf(SUCCESS);
+      } else if (result == 1) {
+          fprintf(stderr, "There is an error while validate.c is executing!");
+      } else if (result == 2) {
+          printf(INVALID);
+      } else if (result == 3) {
+          printf(NO_USER);
+      }
+      if ((close(fd[1])) == -1) {
+          perror("close");
+      }
+      if (close(std_fd) == -1) {
+          perror("close");
+      }
+
 
 }else if(r==0){
 
