@@ -6,7 +6,7 @@
 #include <sys/wait.h>
 
 #define MAXLINE 256
-#define MAX_PASSWORD 100
+#define MAX_PASSWORD 11
 
 #define SUCCESS "Password verified\n"
 #define INVALID "Invalid password\n"
@@ -35,10 +35,7 @@ int main(void) {
       printf(NO_USER);
       exit(1);
   }
-  if(strlen(password)>MAX_PASSWORD){
-      printf(INVALID);
-      exit(1);
-  }
+
 
   int fd[2], r;
   int result = -1;
