@@ -49,8 +49,8 @@ int main(void) {
 
   if(r>0){
 
-
-      if ((dup2(fd[1], STDIN_FILENO)) == -1) {
+      int stdout = dup(STDOUT_FILENO);
+      if ((dup2(fd[1], STDOUT_FILENO)) == -1) {
           perror("dup2");
           exit(1);
       }
@@ -59,6 +59,11 @@ int main(void) {
       }
       if(write(fd[1],password,MAX_PASSWORD)== -1){
           perror("write to pipe");
+      }
+
+      if ((dup2(stdout, STDOUT_FILENO)) == -1) {
+          perror("dup2");
+          exit(1);
       }
 
       if ((close(fd[0])) == -1) {
@@ -79,6 +84,7 @@ int main(void) {
       }
 
 
+
       if (result == 0) {
           printf(SUCCESS);
       } else if (result == 1) {
@@ -92,12 +98,14 @@ int main(void) {
 
 }else if(r==0){
 
-      if ((close(fd[1])) == -1) {
-          perror("close");
-      }
+
       if ((dup2(fd[0], STDIN_FILENO)) == -1) {
           perror("dup2");
           exit(1);
+      }
+
+      if ((close(fd[1])) == -1) {
+          perror("close");
       }
 
       if ((close(fd[0])) == -1) {
