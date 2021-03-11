@@ -49,9 +49,6 @@ int main(void) {
 
   if(r>0){
 
-      if ((close(fd[0])) == -1) {
-          perror("close");
-      }
 
       if ((dup2(fd[1], STDIN_FILENO)) == -1) {
           perror("dup2");
@@ -62,6 +59,10 @@ int main(void) {
       }
       if(write(fd[1],password,MAX_PASSWORD)== -1){
           perror("write to pipe");
+      }
+
+      if ((close(fd[0])) == -1) {
+          perror("close");
       }
 
       if ((close(fd[1])) == -1) {
