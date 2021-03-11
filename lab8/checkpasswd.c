@@ -68,8 +68,6 @@ int main(void) {
           perror("close");
       }
 
-
-
       int status;
       if (wait(&status) != -1) {
           if (WIFEXITED(status)) {
