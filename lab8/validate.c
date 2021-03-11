@@ -95,7 +95,8 @@ int main(void){
         perror("fopen");
         exit(1);
     }
-    
+    printf("username:%s\n",userid);
+    printf("password:%s\n",password);
     char line[MAXLINE];
     while(fgets(line, sizeof(line) - 1, fp)) {
         line[strlen(line) - 1] = '\0';
