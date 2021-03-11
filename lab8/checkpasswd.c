@@ -6,7 +6,7 @@
 #include <sys/wait.h>
 
 #define MAXLINE 256
-#define MAX_PASSWORD 11
+#define MAX_PASSWORD 10
 
 #define SUCCESS "Password verified\n"
 #define INVALID "Invalid password\n"
@@ -31,11 +31,11 @@ int main(void) {
       perror("fgets");
       exit(1);
   }
-  if(strlen(user_id)>MAX_PASSWORD){
+  if(strlen(user_id)>MAX_PASSWORD+1){
       printf(NO_USER);
       exit(1);
   }
-  if(strlen(password)>MAX_PASSWORD){
+  if(strlen(password)>MAX_PASSWORD+1){
       printf(INVALID);
       exit(1);
   }
@@ -53,22 +53,12 @@ int main(void) {
           perror("close");
       }
 
-      if ((dup2(fd[1], STDIN_FILENO)) == -1) {
-          perror("dup2");
-          exit(1);
-      }
-      if(write(fd[1],user_id,MAX_PASSWORD)== -1){
-          perror("write to pipe");
-      }
-      if(write(fd[1],password,MAX_PASSWORD)== -1){
-          perror("write to pipe");
-      }
+      write(fd[1],user_id,MAX_PASSWORD);
+      write(fd[1],password,MAX_PASSWORD);
 
       if ((close(fd[1])) == -1) {
           perror("close");
       }
-
-
 
       int status;
       if (wait(&status) != -1) {
@@ -78,7 +68,6 @@ int main(void) {
               fprintf(stderr, "validate.c terminated abnormally!");
           }
       }
-
 
       if (result == 0) {
           printf(SUCCESS);
@@ -92,11 +81,11 @@ int main(void) {
 
 
 }else if(r==0){
-
       if ((close(fd[1])) == -1) {
           perror("close");
       }
-      if ((dup2(fd[0], STDIN_FILENO)) == -1) {
+
+      if (dup2(fd[0], fileno(stdin)) == -1) {
           perror("dup2");
           exit(1);
       }
@@ -106,7 +95,6 @@ int main(void) {
       }
 
       execl("./validate","validate",NULL);
-
 
   }else {
       perror("fork");
