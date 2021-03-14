@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
         switch(opt) {
         case 'v':
             verbose = 1;
+            break;
         case 'K':
             K = atoi(optarg);
             break;
