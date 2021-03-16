@@ -99,9 +99,17 @@ int main(int argc, char *argv[]) {
      * if (strncmp(dist_metric, "euclidean", strlen(dist_metric)) == 0){
      *      //found a match
      * }
+     * (Edited)
      */ 
-  
-    // TODO
+
+    double (*fptr)(Image *, Image *);
+    if (strncmp(dist_metric, "euclidean", strlen(dist_metric)) == 0){
+        fptr = distance_euclidean;
+    }else if(strncmp(dist_metric, "cosine", strlen(dist_metric)) == 0){
+        fptr = distance_cosine;
+    }else{
+        fprintf(stderr, "Distance function is neither 'euclidean' nor 'cosine'!\n");
+    }
 
 
     // Load data sets
@@ -125,6 +133,34 @@ int main(int argc, char *argv[]) {
     if(verbose) {
         printf("- Creating children ...\n");
     }
+    int fd[2];
+    if (pipe(fd) == -1) {
+        perror("pipe");
+    }
+    int pid;
+    for(int i = 0; i< K;i++) {
+        pid = fork();
+        if (pid == 0) {
+            //child here
+        } else if(pid > 0){
+            //parent here (method #1 in order)
+            int status;
+            wait(&status);
+            if (!(WIFEXITED(status)) && WEXITSTATUS(status) == 0) {
+                //Collect Child Status
+            }
+        }
+    }
+    //parent here (method #2 not in order)
+    int status;
+    for(int j = 0;j<K;j++){
+        wait(&status);
+        if(!(WIFEXITED(status)) && WEXITSTATUS(status)==0){
+            //Collect Child Status
+        }
+    }
+
+
 
     // TODO
 
