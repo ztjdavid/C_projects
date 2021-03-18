@@ -22,7 +22,7 @@ long num_reads, seconds;
  */
 
 void handler(int code){
-    printf("program called %ld fread() and terminated after %ld seconds\n", num_reads, seconds);
+    printf(MESSAGE, num_reads, seconds);
     exit(0);
 }
 
