@@ -5,6 +5,7 @@
 #include <sys/wait.h>  
 #include <string.h>
 #include "knn.h"
+#include <math.h>
 
 /*****************************************************************************/
 /* Do not add anything outside the main function here. Any core logic other  */
@@ -85,11 +86,7 @@ int main(int argc, char *argv[]) {
     optind++;
     char *testing_file = argv[optind];
 
-    // TODO The following lines are included to prevent compiler warnings
-    // and should be removed when you use the variables.
-    (void)K;
-    (void)dist_metric;
-    (void)num_procs;
+
   
     // Set which distance function to use
     /* You can use the following string comparison which will allow
@@ -129,61 +126,76 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    // Create the pipes and child processes who will then call child_handler
+    // Create the pipes
     if(verbose) {
         printf("- Creating children ...\n");
     }
-    int fd[2];
-    if (pipe(fd) == -1) {
-        perror("pipe");
+    int fd_in[num_procs][2];
+    for(int i = 0; i< num_procs;i++) {
+        if (pipe(fd_in[i]) == -1) {
+            perror("pipe");
+        }
     }
-    int pid;
-    for(int i = 0; i< K;i++) {
-        pid = fork();
-        if (pid == 0) {
-            //child here
-        } else if(pid > 0){
-            //parent here (method #1 in order)
-            int status;
-            wait(&status);
-            if (!(WIFEXITED(status)) && WEXITSTATUS(status) == 0) {
-                //Collect Child Status
+    int fd_out[num_procs][2];
+    for(int i = 0; i< num_procs;i++) {
+        if (pipe(fd_out[i]) == -1) {
+            perror("pipe");
+        }
+    }
+
+
+    //Create the child processes
+    pid_t pid_arr[num_procs];
+    for(int i = 0; i< num_procs;i++) {
+        pid_t pid = fork();
+        pid_arr[i] = pid;
+    }
+
+    //Write the index and N into the pipes
+    for(int i = 0; i< num_procs;i++) {
+        if(pid_arr[i] > 0){
+            close(fd_in[i][0]);
+            int index = 0;
+            if(i != num_procs -1){
+                int N = ceil(testing->num_items / num_procs);
+                write(fd_in[i][1], &index, sizeof(int));
+                write(fd_in[i][1], &N, sizeof(int));
+                index += N;
+            }else if(i == num_procs -1){
+                int N = testing->num_items - index;
+                write(fd_in[i][1], &index, sizeof(int));
+                write(fd_in[i][1], &N, sizeof(int));
             }
+            close(fd_in[i][1]);
+        }else if(pid_arr[i] == 0){
+            close(fd_in[i][1]);
+            close(fd_out[i][0]);
+            child_handler(training, testing, K, fptr, fd_in[i][0], fd_out[i][1]);
+            close(fd_in[i][0]);
+            close(fd_out[i][1]);
         }
     }
-    //parent here (method #2 not in order)
+
     int status;
-    for(int j = 0;j<K;j++){
+    for(int i = 0;i<num_procs;i++){
         wait(&status);
-        if(!(WIFEXITED(status)) && WEXITSTATUS(status)==0){
-            //Collect Child Status
+        if(!WIFEXITED(status)){
+            fprintf(stderr, "Child process did not exit normally!");
         }
     }
-
-
-
-    // TODO
-
-
-    // Distribute the work to the children by writing their starting index and
-    // the number of test images to process to their write pipe
-
-    // TODO
-
-
-
     // Wait for children to finish
     if(verbose) {
         printf("- Waiting for children...\n");
     }
 
-    // TODO
-
-
-    // When the children have finised, read their results from their pipe
- 
-    // TODO
-
+    // When the children have finished, read their results from their pipe
+    for(int i = 0; i<num_procs;i++){
+        close(fd_out[i][1]);
+        int result;
+        read(fd_out[i][0], &result, sizeof(int));
+        total_correct += result;
+        close(fd_out[i][0]);
+    }
 
 
     if(verbose) {
@@ -194,9 +206,8 @@ int main(int argc, char *argv[]) {
     printf("%d\n", total_correct);
 
     // Clean up any memory, open files, or open pipes
-
-    // TODO
-
+    free_dataset(training);
+    free_dataset(testing);
 
 
     return 0;
