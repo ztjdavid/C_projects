@@ -18,9 +18,10 @@ int main(int argc, char **argv) {
         perror("fopen");
         exit(1);
     }
-
-    // TODO: complete this program according its description above.
-
+    for (int i = 0; i < 100; i++) {
+        int num = rand()%100;
+        fwrite(&num, sizeof(int), 1, fp);
+    }
 
 
 

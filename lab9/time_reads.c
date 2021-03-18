@@ -21,6 +21,11 @@ long num_reads, seconds;
  * Assume both of these arguments are correct.
  */
 
+void handler(int code){
+    printf("program called %ld fread() and terminated after %ld seconds\n", num_reads, seconds);
+    exit(0);
+}
+
 int main(int argc, char **argv) {
     if (argc != 3) {
         fprintf(stderr, "Usage: time_reads s filename\n");
@@ -33,13 +38,30 @@ int main(int argc, char **argv) {
       perror("fopen");
       exit(1);
     }
+    struct sigaction new;
+    struct itimerval timer, old;
+    timer.it_interval.tv_sec = 0;
+    timer.it_interval.tv_usec = 0;
+    timer.it_value.tv_sec = seconds;
+    timer.it_value.tv_usec = 0;
+    new.sa_handler = handler;
+    new.sa_flags = 0;
+    setitimer(ITIMER_PROF, &timer, &old);
+
+
 
     /* In an infinite loop, read an int from a random location in the file,
      * and print it to stderr.
      */
     for (;;) {
-
-
+        sigemptyset(&new.sa_mask);
+        int num = rand()%100;
+        int result;
+        fseek(fp, num*sizeof(int), SEEK_SET);
+        fread(&result, sizeof(int), 1, fp);
+        num_reads++;
+        printf("%d ", result);
+        sigaction(SIGPROF, &new, NULL);
 
 
     }
