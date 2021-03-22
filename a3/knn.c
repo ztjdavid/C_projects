@@ -179,6 +179,7 @@ void child_handler(Dataset *training, Dataset *testing, int K,
         perror("read");
     }
     int result = 0;
+
     for(int i = 0; i < N; i++){
         int p = knn_predict(training, &testing->images[start_idx+i], K, fptr);
         if(p == testing->labels[start_idx+i]){

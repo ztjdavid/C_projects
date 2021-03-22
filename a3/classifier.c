@@ -150,79 +150,102 @@ int main(int argc, char *argv[]) {
     if(verbose) {
         printf("- Creating children ...\n");
     }
-    pid_t pid_arr[num_procs];
+
+    int pid;
+    int child_count = -1;
     for(int i = 0; i< num_procs;i++) {
-        pid_t pid = fork();
-        if(pid == 0){
+        pid = fork();
+        if(pid == -1){
+            perror("fork");
+            exit(1);
+        }else if(pid == 0){
+            child_count = i;
             break;
         }
-        pid_arr[i] = pid;
+        else{
+            if(verbose) {
+                printf("- Child created with pid: %d\n", pid);
+            }
+        }
     }
 
-    if(verbose) {
-        printf("- Writing into pipes and calling child handler ...\n");
-    }
 
     //Write the index and N into the pipes
+    int index = 0;
     for(int i = 0; i< num_procs;i++) {
-        if(pid_arr[i] > 0){
+        if(pid > 0){
+            if(verbose) {
+                printf("- Writing into pipes\n");
+            }
             close(fd_in[i][0]);
-            int index = 0;
             if(i != num_procs -1){
                 int N = ceil(testing->num_items / num_procs);
                 write(fd_in[i][1], &index, sizeof(int));
                 write(fd_in[i][1], &N, sizeof(int));
-                index += N;
+                index = index + N;
             }else if(i == num_procs -1){
-                int N = testing->num_items - index;
+                int N = testing->num_items - index-1;
                 write(fd_in[i][1], &index, sizeof(int));
                 write(fd_in[i][1], &N, sizeof(int));
             }
             close(fd_in[i][1]);
-        }else if(pid_arr[i] == 0){
-            close(fd_in[i][1]);
-            close(fd_out[i][0]);
-            child_handler(training, testing, K, fptr, fd_in[i][0], fd_out[i][1]);
-            close(fd_in[i][0]);
+        }
+    }
+
+    if(pid == 0) {
+        if (verbose) {
+            printf("- Calling child_handler with pid: %d\n", getpid());
+        }
+        close(fd_in[child_count][1]);
+        close(fd_out[child_count][0]);
+        child_handler(training, testing, K, fptr, fd_in[child_count][0], fd_out[child_count][1]);
+        close(fd_in[child_count][0]);
+        close(fd_out[child_count][1]);
+    }
+
+
+    if(pid >0) {
+        if(verbose) {
+            printf("- Waiting for child to finish ...\n");
+        }
+        int status;
+        for (int i = 0; i < num_procs; i++) {
+            int ppid = wait(&status);
+            if (!WIFEXITED(status)) {
+                fprintf(stderr, "Child with pid %d did not exit normally with signal:%d!\n", ppid,
+                        WIFSIGNALED(status));
+                exit(1);
+            } else {
+                if (verbose) {
+                    printf("- Child finished with pid %d\n", ppid);
+                }
+            }
+        }
+
+        if (verbose) {
+            printf("- Reading from child ...\n");
+        }
+        // When the children have finished, read their results from their pipe
+        for (int i = 0; i < num_procs; i++) {
             close(fd_out[i][1]);
+            int result;
+            read(fd_out[i][0], &result, sizeof(int));
+            total_correct += result;
+            close(fd_out[i][0]);
         }
-    }
 
-    if(verbose) {
-        printf("- Waiting for child to finish ...\n");
-    }
 
-    int status;
-    for(int i = 0;i<num_procs;i++){
-        wait(&status);
-        if(!WIFEXITED(status)){
-            fprintf(stderr, "Child process did not exit normally with signal:%d!\n", WIFSIGNALED(status));
+        if (verbose) {
+            printf("Number of correct predictions: %d\n", total_correct);
         }
+
+        // This is the only print statement that can occur outside the verbose check
+        //printf("%d\n", total_correct);
+
+        // Clean up any memory, open files, or open pipes
+        free_dataset(training);
+        free_dataset(testing);
     }
-
-    if(verbose) {
-        printf("- Reading from child ...\n");
-    }
-    // When the children have finished, read their results from their pipe
-    for(int i = 0; i<num_procs;i++){
-        close(fd_out[i][1]);
-        int result;
-        read(fd_out[i][0], &result, sizeof(int));
-        total_correct += result;
-        close(fd_out[i][0]);
-    }
-
-
-    if(verbose) {
-        printf("Number of correct predictions: %d\n", total_correct);
-    }
-
-    // This is the only print statement that can occur outside the verbose check
-    printf("%d\n", total_correct);
-
-    // Clean up any memory, open files, or open pipes
-    free_dataset(training);
-    free_dataset(testing);
 
 
     return 0;
