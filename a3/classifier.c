@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
         }
 
         // This is the only print statement that can occur outside the verbose check
-        //printf("%d\n", total_correct);
+        printf("%d\n", total_correct);
 
         // Clean up any memory, open files, or open pipes
         free_dataset(training);
