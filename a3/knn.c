@@ -168,12 +168,16 @@ void free_dataset(Dataset *data) {
  *        the parent (through p_out)
  */
 void child_handler(Dataset *training, Dataset *testing, int K, 
-                   double (*fptr)(Image *, Image *),int p_in, int p_out) {
+                   double (*fptr)(Image *, Image *), int p_in, int p_out) {
 
     int start_idx;
     int N;
-    read(p_in, &start_idx, sizeof(int));
-    read(p_in, &N, sizeof(int));
+    if(read(p_in, &start_idx, sizeof(int)) == -1){
+        perror("read");
+    }
+    if(read(p_in, &N, sizeof(int)) == -1){
+        perror("read");
+    }
     int result = 0;
     for(int i = 0; i < N; i++){
         int p = knn_predict(training, &testing->images[start_idx+i], K, fptr);
@@ -181,7 +185,9 @@ void child_handler(Dataset *training, Dataset *testing, int K,
             result++;
         }
     }
-    write(p_out, &result, sizeof(int));
+    if(write(p_out, &result, sizeof(int)) == -1){
+        perror("write");
+    }
 
 }
 
@@ -203,7 +209,7 @@ double distance_cosine(Image *a, Image *b){
         sum_a_sqr += (a->data[i])*(a->data[i]);
         sum_b_sqr += (b->data[i])*(b->data[i]);
     }
-    d = (2/M_PI)*((sum_ab)/(sqrt(sum_a_sqr)*sum_b_sqr));
+    d = (2/M_PI)*acos(((sum_ab)/(sqrt(sum_a_sqr)*sum_b_sqr)));
     return d;
 
 }

@@ -39,13 +39,14 @@ int main(int argc, char **argv) {
       exit(1);
     }
     struct sigaction new;
+    new.sa_handler = handler;
+    new.sa_flags = 0;
+
     struct itimerval timer, old;
     timer.it_interval.tv_sec = 0;
     timer.it_interval.tv_usec = 0;
     timer.it_value.tv_sec = seconds;
     timer.it_value.tv_usec = 0;
-    new.sa_handler = handler;
-    new.sa_flags = 0;
     setitimer(ITIMER_PROF, &timer, &old);
 
 
@@ -62,7 +63,6 @@ int main(int argc, char **argv) {
         num_reads++;
         printf("%d ", result);
         sigaction(SIGPROF, &new, NULL);
-
 
     }
     return 1; // something is wrong if we ever get here!

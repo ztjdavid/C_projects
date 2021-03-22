@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 
     // Create the pipes
     if(verbose) {
-        printf("- Creating children ...\n");
+        printf("- Creating pipes ...\n");
     }
     int fd_in[num_procs][2];
     for(int i = 0; i< num_procs;i++) {
@@ -136,6 +136,7 @@ int main(int argc, char *argv[]) {
             perror("pipe");
         }
     }
+
     int fd_out[num_procs][2];
     for(int i = 0; i< num_procs;i++) {
         if (pipe(fd_out[i]) == -1) {
@@ -145,10 +146,21 @@ int main(int argc, char *argv[]) {
 
 
     //Create the child processes
+
+    if(verbose) {
+        printf("- Creating children ...\n");
+    }
     pid_t pid_arr[num_procs];
     for(int i = 0; i< num_procs;i++) {
         pid_t pid = fork();
+        if(pid == 0){
+            break;
+        }
         pid_arr[i] = pid;
+    }
+
+    if(verbose) {
+        printf("- Writing into pipes and calling child handler ...\n");
     }
 
     //Write the index and N into the pipes
@@ -176,18 +188,21 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if(verbose) {
+        printf("- Waiting for child to finish ...\n");
+    }
+
     int status;
     for(int i = 0;i<num_procs;i++){
         wait(&status);
         if(!WIFEXITED(status)){
-            fprintf(stderr, "Child process did not exit normally!");
+            fprintf(stderr, "Child process did not exit normally with signal:%d!\n", WIFSIGNALED(status));
         }
     }
-    // Wait for children to finish
-    if(verbose) {
-        printf("- Waiting for children...\n");
-    }
 
+    if(verbose) {
+        printf("- Reading from child ...\n");
+    }
     // When the children have finished, read their results from their pipe
     for(int i = 0; i<num_procs;i++){
         close(fd_out[i][1]);
