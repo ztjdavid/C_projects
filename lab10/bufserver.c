@@ -55,7 +55,7 @@ int main() {
                 // using print statement below.
                 // Be sure to put a '\0' in the correct place first;
                 // otherwise you'll get junk in the output.
-                buf[where-2] = '\0';
+                buf[where-] = '\0';
                 printf("Next message: %s\n", buf);
                 // Note that we could have also used write to avoid having to
                 // put the '\0' in the buffer. Try using write later!
@@ -66,6 +66,7 @@ int main() {
                 // You want to move the stuff after the full line to the beginning
                 // of the buffer.  A loop can do it, or you can use memmove.
                 // memmove(destination, source, number_of_bytes)
+                buf[0] = '\0';
                 inbuf = inbuf - where;
                 memmove(&buf, &buf[where], inbuf);
 
