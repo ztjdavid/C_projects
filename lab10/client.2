@@ -1,0 +1,86 @@
+Script started on 2021-03-25 15:51:41-0400
+]0;zhaoti76@wolf:/h/u17/c9/00/zhaoti76/zhaoti76/lab10wolf:~/zhaoti76/lab10$ gdb randclient
+GNU gdb (Ubuntu 8.1.1-0ubuntu1) 8.1.1
+Copyright (C) 2018 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from randclient...done.
+(gdb) break 24
+Breakpoint 1 at 0xc69: file randclient.c, line 24.
+(gdb) run 127.0.0.1
+Starting program: /h/u17/c9/00/zhaoti76/zhaoti76/lab10/randclient 127.0.0.1
+
+Breakpoint 1, main (argc=2, argv=0x7fffffffea48) at randclient.c:24
+24          if (argc != 2) {
+(gdb) n
+29          int soc = connect_to_server(PORT, argv[1]);
+(gdb) 
+connect: Connection refused
+[Inferior 1 (process 31122) exited with code 01]
+(gdb) run 127.0.0.1
+Starting program: /h/u17/c9/00/zhaoti76/zhaoti76/lab10/randclient 127.0.0.1
+
+Breakpoint 1, main (argc=2, argv=0x7fffffffea48) at randclient.c:24
+24          if (argc != 2) {
+(gdb) n
+29          int soc = connect_to_server(PORT, argv[1]);
+(gdb) 
+31          write_random_pieces(soc, MESSAGE, TIMES);
+(gdb) 
+33          close(soc);
+(gdb) n
+34          return 0;
+(gdb) 
+35      }
+(gdb) 
+__libc_start_main (main=0x555555554c5a <main>, argc=2, argv=0x7fffffffea48, 
+    init=<optimized out>, fini=<optimized out>, rtld_fini=<optimized out>, 
+    stack_end=0x7fffffffea38) at ../csu/libc-start.c:344
+344     ../csu/libc-start.c: No such file or directory.
+(gdb) run 127.0.0.1
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /h/u17/c9/00/zhaoti76/zhaoti76/lab10/randclient 127.0.0.1
+
+Breakpoint 1, main (argc=2, argv=0x7fffffffea48) at randclient.c:24
+24          if (argc != 2) {
+(gdb) n
+29          int soc = connect_to_server(PORT, argv[1]);
+(gdb) 
+31          write_random_pieces(soc, MESSAGE, TIMES);
+(gdb) 
+33          close(soc);
+(gdb) 
+34          return 0;
+(gdb) run 127.0.0.1
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /h/u17/c9/00/zhaoti76/zhaoti76/lab10/randclient 127.0.0.1
+
+Breakpoint 1, main (argc=2, argv=0x7fffffffea48) at randclient.c:24
+24          if (argc != 2) {
+(gdb) 
+(gdb) n
+29          int soc = connect_to_server(PORT, argv[1]);
+(gdb) 
+31          write_random_pieces(soc, MESSAGE, TIMES);
+(gdb) quit
+A debugging session is active.
+
+        Inferior 1 [process 41101] will be killed.
+
+Quit anyway? (y or n) y
+]0;zhaoti76@wolf:/h/u17/c9/00/zhaoti76/zhaoti76/lab10wolf:~/zhaoti76/lab10$ exit
+exit
+
+Script done on 2021-03-25 16:00:24-0400
