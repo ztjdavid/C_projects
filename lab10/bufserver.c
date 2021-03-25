@@ -55,8 +55,12 @@ int main() {
                 // using print statement below.
                 // Be sure to put a '\0' in the correct place first;
                 // otherwise you'll get junk in the output.
-                buf[where-2] = '\0';
-                printf("Next message: %s\n", buf);
+                char out[BUFSIZE] = {'\0'};
+                for(int i = 0; i < BUFSIZE; i ++){
+                    out[i] = buf[i];
+                }
+                out[where-2]= '\0';
+                printf("Next message: %s\n", out);
                 // Note that we could have also used write to avoid having to
                 // put the '\0' in the buffer. Try using write later!
 
