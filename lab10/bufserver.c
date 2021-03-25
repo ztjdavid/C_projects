@@ -55,12 +55,8 @@ int main() {
                 // using print statement below.
                 // Be sure to put a '\0' in the correct place first;
                 // otherwise you'll get junk in the output.
-                char out[BUFSIZE] = {'\0'};
-                for(int i = 0; i < BUFSIZE; i ++){
-                    out[i] = buf[i];
-                }
-                out[where-2]= '\0';
-                printf("Next message: %s\n", out);
+                buf[where-2]= '\0';
+                printf("Next message: %s\n", buf);
                 // Note that we could have also used write to avoid having to
                 // put the '\0' in the buffer. Try using write later!
 
@@ -101,7 +97,7 @@ int main() {
  */
 int find_network_newline(const char *buf, int n) {
     for(int i = 0; i < n; i++){
-        if(buf[i] == '\r'|| buf[i]=='0'){
+        if(buf[i] == '\r'){
             if(buf[i+1] == '\n'){
                 return i+2;
             }
