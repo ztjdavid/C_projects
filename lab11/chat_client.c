@@ -56,30 +56,58 @@ int main(void) {
     // Read input from the user, send it to the server, and then accept the
     // echo that returns. Exit when stdin is closed.
     while (1) {
-        int num_read = read(STDIN_FILENO, buf, BUF_SIZE);
-        if (num_read == 0) {
-            break;
+        int max_fd;
+        if(sock_fd > STDIN_FILENO){
+            max_fd = sock_fd;
+        }else{
+            max_fd = STDIN_FILENO;
         }
-        buf[num_read] = '\0';
+        fd_set read_fds;
+        FD_ZERO(&read_fds);
+        FD_SET(STDIN_FILENO, &read_fds);
+        FD_SET(sock_fd, &read_fds);
+        int num_fd;
+        if(STDIN_FILENO > sock_fd){
+            num_fd = STDIN_FILENO + 1;
+        }else{
+            num_fd = sock_fd + 1;
+        }
+        if (select(num_fd, &read_fds, NULL, NULL, NULL) == -1) {
+            perror("server: select");
+            exit(1);
+        }
+
+        if(FD_ISSET(STDIN_FILENO, &read_fds)){
+            int num_read = read(STDIN_FILENO, buf, BUF_SIZE);
+            if (num_read == 0) {
+                break;
+            }
+            buf[num_read] = '\0';
+            if (write(sock_fd, buf, num_read) != num_read) {
+                perror("client: write");
+                close(sock_fd);
+                exit(1);
+            }
+        }
+
 
         /*
          * We should really send "\r\n" too, so the server can identify partial
          * reads, but you are not required to handle partial reads in this lab.
          */
-        if (write(sock_fd, buf, num_read) != num_read) {
-            perror("client: write");
-            close(sock_fd);
-            exit(1);
+        if(FD_ISSET(sock_fd, &read_fds)){
+            num_read = read(sock_fd, buf, BUF_SIZE);
+            if (num_read == 0) {
+                break;
+            }
+            buf[num_read] = '\0';
+            printf("%s", buf);
+
         }
 
-        num_read = read(sock_fd, buf, BUF_SIZE);
-        if (num_read == 0) {
-            break;
-        }
-        buf[num_read] = '\0';
-        printf("[Server] %s", buf);
     }
 
     close(sock_fd);
     return 0;
+
 }
