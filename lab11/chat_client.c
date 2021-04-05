@@ -56,12 +56,6 @@ int main(void) {
     // Read input from the user, send it to the server, and then accept the
     // echo that returns. Exit when stdin is closed.
     while (1) {
-        int max_fd;
-        if(sock_fd > STDIN_FILENO){
-            max_fd = sock_fd;
-        }else{
-            max_fd = STDIN_FILENO;
-        }
         fd_set read_fds;
         FD_ZERO(&read_fds);
         FD_SET(STDIN_FILENO, &read_fds);
