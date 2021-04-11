@@ -241,13 +241,12 @@ int main(void) {
 
     fd_set read_fds;
     FD_ZERO(&read_fds);
-    FD_SET(STDIN_FILENO, &read_fds);
     int max_fd = STDIN_FILENO;
 
     while(1) {
         //Print please enter a command
         print_prompt();
-
+        FD_SET(STDIN_FILENO, &read_fds);
 
         if (select(max_fd+1, &read_fds, NULL, NULL, NULL) == -1) {
             perror("ERROR: select");
@@ -293,6 +292,7 @@ int main(void) {
                     fprintf(stderr, "ERROR: writing bid to server\n");
                     exit(1);
                 }
+                FD_SET(auction[i].sock_fd, &read_fds);
             } else if(choice == QUIT){
                 for(int i = 0; i<MAX_AUCTIONS; i++){
                     if(auction[i].sock_fd != -1) {
@@ -303,10 +303,6 @@ int main(void) {
             }
         }
 
-        if (select(max_fd+1, &read_fds, NULL, NULL, NULL) == -1) {
-            perror("ERROR: select");
-            exit(1);
-        }
 
         //checking message from servers
         for(int i = 0; i < MAX_AUCTIONS; i++) {
