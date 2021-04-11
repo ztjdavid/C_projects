@@ -222,6 +222,9 @@ int main(void) {
     char arg2[BUF_SIZE];
     int choice;
     char server_buf[BUF_SIZE];
+    fd_set read_fds;
+    FD_ZERO(&read_fds);
+    int max_fd = STDIN_FILENO;
 
     struct auction_data auction[MAX_AUCTIONS];
     for(int i = 0; i < MAX_AUCTIONS; i++){
@@ -239,15 +242,18 @@ int main(void) {
     }
     print_menu();
 
-    fd_set read_fds;
-    FD_ZERO(&read_fds);
-    int max_fd = STDIN_FILENO;
+
 
     while(1) {
         //Print please enter a command
         print_prompt();
-        FD_SET(STDIN_FILENO, &read_fds);
 
+        FD_SET(STDIN_FILENO, &read_fds);
+        for(int i = 0; i < MAX_AUCTIONS; i++){
+            if(auction[i].sock_fd != -1){
+                FD_SET(auction[i].sock_fd, &read_fds);
+            }
+        }
         if (select(max_fd+1, &read_fds, NULL, NULL, NULL) == -1) {
             perror("ERROR: select");
             exit(1);
@@ -261,10 +267,17 @@ int main(void) {
                 exit(1);
             }
             choice = parse_command(response, sizeof_response, arg1, arg2);
+
+            //If User enters: "show"
             if(choice == SHOW){
                 print_auctions(auction, MAX_AUCTIONS);
-            } else if(choice == ADD){
+            }
+
+            //If User enters: "add <server address> <port number>"
+            else if(choice == ADD){
                 int available_index = -1;
+
+                //find an  index in auction struct with empty space for the new server
                 for(int i = 0; i<MAX_AUCTIONS; i++){
                     if(auction[i].sock_fd == -1){
                         available_index = i;
@@ -286,14 +299,19 @@ int main(void) {
                     fprintf(stderr, "ERROR: writing name to server\n");
                     exit(1);
                 }
-            } else if(choice == BID){
+            }
+
+            //If User enters: "bid <item index> <bid value>"
+            else if(choice == BID){
                 int index = strtol(arg1, NULL, 10);
                 if(write(auction[index].sock_fd, arg2, strlen(arg2)) != strlen(arg2)){
                     fprintf(stderr, "ERROR: writing bid to server\n");
                     exit(1);
                 }
-                FD_SET(auction[i].sock_fd, &read_fds);
-            } else if(choice == QUIT){
+            }
+
+            //If User enters: "quit"
+            else if(choice == QUIT){
                 for(int i = 0; i<MAX_AUCTIONS; i++){
                     if(auction[i].sock_fd != -1) {
                         close(auction[i].sock_fd);
@@ -303,22 +321,29 @@ int main(void) {
             }
         }
 
-
         //checking message from servers
         for(int i = 0; i < MAX_AUCTIONS; i++) {
+            if(auction[i].sock_fd > -1){
                 if (FD_ISSET(auction[i].sock_fd, &read_fds)) {
                     num_read = read(auction[i].sock_fd, server_buf, BUF_SIZE);
                     if (num_read <= 0) {
                         fprintf(stderr, "ERROR: read from server failed\n");
                         exit(1);
                     }
+
+                    //Is the auction closed?
                     if (strncmp("Auction closed", server_buf, 13) == 0) {
                         printf("%s", server_buf);
                         close(auction[i].sock_fd);
                         auction[i].sock_fd = -1;
-                    } else {
+                    }
+
+
+                    //If the auction is not closed, update auction struct
+                    else {
                         update_auction(server_buf, MAX_AUCTIONS, auction, i);
                     }
+                }
             }
         }
 
