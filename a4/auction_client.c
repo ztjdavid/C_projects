@@ -252,8 +252,11 @@ int main(void) {
         for(int i = 0; i < MAX_AUCTIONS; i++){
             if(auction[i].sock_fd != -1){
                 FD_SET(auction[i].sock_fd, &read_fds);
+            }else{
+                FD_CLR(auction[i].sock_fd, &read_fds);
             }
         }
+
         if (select(max_fd+1, &read_fds, NULL, NULL, NULL) == -1) {
             perror("ERROR: select");
             exit(1);
