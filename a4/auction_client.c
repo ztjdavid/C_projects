@@ -139,6 +139,7 @@ void slice(int start, int end, char *buf, const char *str){
     buf[index] = 0;
 }
 
+
 /* Print to standard output information about the auction
  */
 void print_auctions(struct auction_data *a, int size) {
@@ -157,7 +158,6 @@ void print_auctions(struct auction_data *a, int size) {
      * The array may have some elements where the auction has closed and
      * should not be printed.
      */
-
 }
 
 
@@ -288,7 +288,7 @@ int main(void) {
                     }
                 }
                 if(available_index == -1){
-                    fprintf(stderr, "Max number server reached, adding failed!");
+                    fprintf(stderr, "Max number server reached, adding failed!\n");
                     continue;
                 }
                 int port = strtol(arg2, NULL, 10);
@@ -322,6 +322,11 @@ int main(void) {
                 }
                 return 0;
             }
+
+            //Print menu when input is not recognized);
+            else{
+                print_menu();
+            }
         }
 
         //checking message from servers
@@ -336,11 +341,10 @@ int main(void) {
 
                     //Is the auction closed?
                     if (strncmp("Auction closed", server_buf, 13) == 0) {
-                        printf("%s", server_buf);
+                        printf("%s\n", server_buf);
                         close(auction[i].sock_fd);
                         auction[i].sock_fd = -1;
                     }
-
 
                     //If the auction is not closed, update auction struct
                     else {

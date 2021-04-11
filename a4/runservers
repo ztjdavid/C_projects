@@ -4,7 +4,7 @@
 # and start 5 auction_servers with increasing port numbers
 # $(( )) does the arithmetic expansion in bash
 
-start_port=$1
+start_port=$((57800))
 
 ./auction_server -v -t 15 -p $start_port Mirror &
 ./auction_server -v -t 15 -p $(($start_port + 1)) Necklace &
