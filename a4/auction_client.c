@@ -176,11 +176,12 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
         if(buf[i] == ' '){
             if(space_count == 0){
                 slice(start_index, i, item, buf);
+                item[i] = '\0';
                 start_index = i+1;
                 space_count++;
             }else if(space_count == 1){
                 char temp[BUF_SIZE];
-                slice(start_index, i, item, temp);
+                slice(start_index, i, temp, buf);
                 highest_bid = strtol(temp, NULL, 10);
                 start_index = i+1;
                 space_count++;
@@ -196,7 +197,7 @@ void update_auction(char *buf, int size, struct auction_data *a, int index) {
         return;
     }
 
-    if(a[index].current_bid == -1){
+    if(a[index].current_bid == -2){
         strncpy(a[index].item, item, strlen(item));
         a[index].current_bid = highest_bid;
     }else{
@@ -225,7 +226,7 @@ int main(void) {
     struct auction_data auction[MAX_AUCTIONS];
     for(int i = 0; i < MAX_AUCTIONS; i++){
         auction[i].sock_fd = -1;
-        auction[i].current_bid = -1;
+        auction[i].current_bid = -2;
     }
 
     // Get the user to provide a name.
